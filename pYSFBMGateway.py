@@ -1,25 +1,15 @@
 import socket
 import sys
 import signal
-from hashlib import sha256
 import logging
 import threading
 import time
-from datetime import datetime
 
 import configparser as configparser
 
+from utils import now, pad
 from ysf import ysffich
-
-
-def set_client_addr(addr):
-    global client_addr
-    client_addr = addr
-
-
-def now():
-    dt = datetime.now()
-    return datetime.timestamp(dt)
+from ysfd_protocol import send_group_message, login_and_set_tg
 
 
 def set_last_client_packet_timestamp():
@@ -32,40 +22,12 @@ def set_dg_id(new_dg_id):
     cur_dg_id = new_dg_id
 
 
-def pad(data: bytes, length: int) -> bytes:
-    padding_length = length - len(data)
-    return data + b'\x20' * padding_length
+def set_client_addr(addr):
+    global client_addr
+    client_addr = addr
 
 
-def send_login_message(call: str):
-    message = "YSFL".encode() + pad(call.encode(), 10)
-    logging.debug("sending: %s" % message)
-    bm_sock.send(message)
-
-
-def receive_salt() -> bytes:
-    data = bm_sock.recv(20)
-    logging.debug("received message: %s" % data)
-    salt = data[16:]
-    logging.debug("salt: %s" % salt)
-    return salt
-
-
-def send_challenge_message(call: str, salt: bytes, password: str):
-    secret = salt + password.encode()
-    secret_hash = sha256(secret).digest()
-    message = "YSFK".encode() + pad(call.encode(), 10) + secret_hash
-    logging.debug("sending: %s" % message)
-    bm_sock.send(message)
-
-
-def send_group_message(call: str, tg: int):
-    message = "YSFO".encode() + pad(call.encode(), 10) + f"group={tg}".encode()
-    logging.debug("sending: %s" % message)
-    bm_sock.send(message)
-
-
-def bm_to_pi():
+def bm_to_ysf():
     while True:
         data = bm_sock.recv(1024)
         logging.debug("received message: %s" % data)
@@ -74,14 +36,14 @@ def bm_to_pi():
             logging.error("Brandmeister returned an error")
 
         if client_addr != "":
-            pi_sock.sendto(data, client_addr)
+            ysf_sock.sendto(data, client_addr)
 
 
-def pi_to_bm():
+def ysf_to_bm():
     while True:
-        data, addr = pi_sock.recvfrom(1024)  # buffer size is 1024 bytes
+        data, addr = ysf_sock.recvfrom(1024)  # buffer size is 1024 bytes
         set_client_addr(addr)
-        logging.debug("received message from pi-star: %s" % data)
+        logging.debug("received message from YSFGatewayz\: %s" % data)
 
         if "YSFP" in str(data):
             continue
@@ -92,7 +54,7 @@ def pi_to_bm():
 
             if cur_dg_id != dg_id:
                 logging.info(f"Changing TG to {dgid_tg[dg_id]} mapped from DG-ID {dg_id}")
-                send_group_message(callsign, dgid_tg[dg_id])
+                send_group_message(callsign, dgid_tg[dg_id], bm_sock)
                 set_dg_id(dg_id)
 
         bm_sock.send(data)
@@ -107,19 +69,6 @@ def send_ping(call: str):
             logging.debug("sending ping: %s" % message)
             bm_sock.send(message)
         time.sleep(10)
-
-
-def login_and_set_tg():
-    send_login_message(callsign)
-    salt = receive_salt()
-    send_challenge_message(callsign, salt, bm_password)
-    send_group_message(callsign, default_tg)
-
-    data = bm_sock.recv(1024)  # buffer size is 1024 bytes
-
-    if "YSFNAK" in str(data):
-        logging.error("Brandmeister returned an error - check password")
-        sys.exit(0)
 
 
 if __name__ == '__main__':
@@ -146,8 +95,8 @@ if __name__ == '__main__':
     bm_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     bm_sock.connect((server_ip, bm_port))
 
-    pi_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    pi_sock.bind(("", ysf_port))
+    ysf_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ysf_sock.bind(("", ysf_port))
 
     loglevel = config["LOG"]["loglevel"]
     if config["LOG"]["logtype"] == "stdout":
@@ -159,16 +108,16 @@ if __name__ == '__main__':
     logging.info("Starting pYSFBMGateway")
     logging.info(f"Default TG {default_tg} mapped to DG-ID {cur_dg_id}")
 
-    login_and_set_tg()
+    login_and_set_tg(callsign, bm_password, default_tg, bm_sock)
 
     ping_thread = threading.Thread(target=send_ping, args=(callsign,), daemon=True)
     ping_thread.start()
 
-    bm2pi_thread = threading.Thread(target=bm_to_pi, daemon=True)
-    bm2pi_thread.start()
+    bm2ysf_thread = threading.Thread(target=bm_to_ysf, daemon=True)
+    bm2ysf_thread.start()
 
-    pi2bm_thread = threading.Thread(target=pi_to_bm, daemon=True)
-    pi2bm_thread.start()
+    ysf2bm_thread = threading.Thread(target=ysf_to_bm, daemon=True)
+    ysf2bm_thread.start()
 
     signal.signal(signal.SIGINT, lambda a, b: sys.exit(0))
     while True:
