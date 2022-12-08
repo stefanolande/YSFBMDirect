@@ -1,15 +1,16 @@
+import configparser as configparser
+import logging
+import signal
 import socket
 import sys
-import signal
-import logging
 import threading
 import time
-
-import configparser as configparser
 
 from utils import now, pad
 from ysf import ysffich
 from ysfd_protocol import send_group_message, login_and_set_tg
+
+keep_running: bool = False
 
 
 def set_last_client_packet_timestamp():
@@ -28,9 +29,9 @@ def set_client_addr(addr):
 
 
 def bm_to_ysf():
-    while True:
+    while keep_running:
         data = bm_sock.recv(1024)
-        logging.debug("received message: %s" % data)
+        logging.debug("received message from BM: %s" % data)
 
         if "YSFNAK" in str(data):
             logging.error("Brandmeister returned an error")
@@ -40,19 +41,20 @@ def bm_to_ysf():
 
 
 def ysf_to_bm():
-    while True:
+    while keep_running:
         data, addr = ysf_sock.recvfrom(1024)  # buffer size is 1024 bytes
         set_client_addr(addr)
-        logging.debug("received message from YSFGatewayz\: %s" % data)
+        logging.debug("received message from YSFGateway: %s" % data)
 
         if "YSFP" in str(data):
+            ysf_sock.sendto("YSFP".encode() + pad("YSFBMG".encode(), 10), client_addr)
             continue
 
         if "YSFD" in str(data):
             ysffich.decode(data[40:])
             dg_id = ysffich.getSQ()
 
-            if cur_dg_id != dg_id:
+            if cur_dg_id != dg_id and dg_id in dgid_tg:
                 logging.info(f"Changing TG to {dgid_tg[dg_id]} mapped from DG-ID {dg_id}")
                 send_group_message(callsign, dgid_tg[dg_id], bm_sock)
                 set_dg_id(dg_id)
@@ -62,7 +64,7 @@ def ysf_to_bm():
 
 
 def send_ping(call: str):
-    while True:
+    while keep_running:
         curr_ts = now()
         if curr_ts - last_client_packet_timestamp > 10:
             message = "YSFP".encode() + pad(call.encode(), 10)
@@ -110,15 +112,34 @@ if __name__ == '__main__':
 
     login_and_set_tg(callsign, bm_password, default_tg, bm_sock)
 
+    keep_running = True
+
     ping_thread = threading.Thread(target=send_ping, args=(callsign,), daemon=True)
     ping_thread.start()
 
-    bm2ysf_thread = threading.Thread(target=bm_to_ysf, daemon=True)
+    bm2ysf_thread = threading.Thread(target=bm_to_ysf)
     bm2ysf_thread.start()
 
-    ysf2bm_thread = threading.Thread(target=ysf_to_bm, daemon=True)
+    ysf2bm_thread = threading.Thread(target=ysf_to_bm)
     ysf2bm_thread.start()
 
-    signal.signal(signal.SIGINT, lambda a, b: sys.exit(0))
-    while True:
-        time.sleep(1)
+
+    def signal_handler(signum, _) -> None:
+        global keep_running
+        keep_running = False
+
+        bm_sock.close()
+        bm_sock.send(b"")
+        ysf_sock.close()
+        ysf_sock.send(b"")
+
+
+    if sys.platform == "win32":
+        signal.signal(signal.SIGBREAK, signal_handler)
+    else:
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+
+    ping_thread.join()
+    bm2ysf_thread.join()
+    ysf2bm_thread.join()
