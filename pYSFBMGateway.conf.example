@@ -1,6 +1,6 @@
 [CONNECTION]
-callsign: IS0EIR
-bm_password: decitacan
+callsign: <CALLSIGN>
+bm_password: <PASSWORD>
 server_ip: 80.211.95.98
 server_name: BM_2222
 bm_port: 42001
@@ -16,7 +16,7 @@ default_tg: 2231
 92: 92
 
 [LOG]
-loglevel: DEBUG
+loglevel: INFO
 # stdout or file
-logtype : stdout
+logtype : file
 path: pysfbmgateway.log

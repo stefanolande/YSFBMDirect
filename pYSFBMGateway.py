@@ -73,6 +73,20 @@ def send_ping(call: str):
         time.sleep(10)
 
 
+def signal_handler(signum, _) -> None:
+    global keep_running
+    keep_running = False
+
+    bm_sock.close()
+    ysf_sock.close()
+
+    if sys.platform == "win32":
+        signal.signal(signal.SIGBREAK, signal_handler)
+    else:
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+
+
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read("pYSFBMGateway.conf")
@@ -120,7 +134,7 @@ if __name__ == '__main__':
 
     keep_running = True
 
-    ping_thread = threading.Thread(target=send_ping, args=(callsign,), daemon=True)
+    ping_thread = threading.Thread(target=send_ping, args=(callsign,))
     ping_thread.start()
 
     bm2ysf_thread = threading.Thread(target=bm_to_ysf)
@@ -128,23 +142,6 @@ if __name__ == '__main__':
 
     ysf2bm_thread = threading.Thread(target=ysf_to_bm)
     ysf2bm_thread.start()
-
-
-    def signal_handler(signum, _) -> None:
-        global keep_running
-        keep_running = False
-
-        bm_sock.close()
-        bm_sock.send(b"")
-        ysf_sock.close()
-        ysf_sock.send(b"")
-
-
-    if sys.platform == "win32":
-        signal.signal(signal.SIGBREAK, signal_handler)
-    else:
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
 
     ping_thread.join()
     bm2ysf_thread.join()
