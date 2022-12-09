@@ -14,7 +14,7 @@ Then, simply change the TX DG-ID of your radio to change the DMR Talk Group.
 
 ## Installation
 
-Clone the repository and create your configuration file and set your callsign and password.
+Clone the repository and create your configuration file. Set your callsign and password in the file.
 
 ```
 git clone https://github.com/stefanolande/pYSFBMGateway.git
