@@ -35,8 +35,8 @@ sudo systemctl start pYSFBMGateway.service
 Add pYSFBMGateway as a YSF reflector
 
 ```
-echo "01234;YSF-BM;YSF-BM;127.0.0.1;42002;001" >> /usr/local/etc/YSFHosts.txt
-sudo systemctl restart ysfgateway
+echo "01234;YSF-BM;YSF-BM;127.0.0.1;42002;001" >> /root/YSFHosts.txt
+/usr/local/sbin/HostFilesUpdate.sh
 ```
 
 `01234` is the YSF Room code, `YSF-BM` is the room name and can be changed as you wish (use a free room number).
@@ -50,7 +50,3 @@ Example: `31: 2231` sets the DG-ID 31 to set the gateway to the Talk Group 2231.
 
 You can add as many mapping as you wish with the 99 available DG-IDs (00-99). 
 Pay attention that you cannot repeat DG-IDs and you cannot assign the same TG to multiple DG-IDs.
-
-## TODO
-
-`pi-star` will periodically overwrite `YSFHosts.txt`. Add instruction to preserve the custom line of the gateway.
