@@ -127,7 +127,7 @@ if __name__ == '__main__':
     ysf_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ysf_sock.bind(("", ysf_port))
 
-    logging.info("Starting pYSFBMGateway")
+    logging.info("Starting pYSFBMDirect")
     logging.info(f"Default TG {default_tg} mapped to DG-ID {cur_dg_id}")
 
     login_and_set_tg(callsign, bm_password, default_tg, bm_sock)

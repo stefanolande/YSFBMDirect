@@ -1,5 +1,5 @@
 [Unit]
-Description=pYSFBMGateway
+Description=pYSFBMDirect
 After=multi-user.target
 
 [Service]
