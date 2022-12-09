@@ -3,6 +3,9 @@
 pYSFBMGateway is a software that allows you to access Brandmeister as if it were a YSF reflector.
 It works by using the YSF Direct protocol that is being currently experimented.
 
+The goal of this software is to build a YSF repeater that can connect to Brandmeister Talk Groups, 
+without losing the possibility to connect to other YSF rooms.
+
 By adding pYSFBMGateway to your `YSFHosts.txt` file, you can connect to it through WIRES-X.
 Then, simply change the TX DG-ID of your radio to change the DMR Talk Group.
 
@@ -47,3 +50,7 @@ Example: `31: 2231` sets the DG-ID 31 to set the gateway to the Talk Group 2231.
 
 You can add as many mapping as you wish with the 99 available DG-IDs (00-99). 
 Pay attention that you cannot repeat DG-IDs and you cannot assign the same TG to multiple DG-IDs.
+
+## TODO
+
+`pi-star` will periodically overwrite `YSFHosts.txt`. Add instruction to preserve the custom line of the gateway.
