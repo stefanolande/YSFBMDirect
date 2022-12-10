@@ -1,12 +1,12 @@
 [Unit]
-Description=pYSFBMDirect
+Description=BMYSFDirect
 After=multi-user.target
 
 [Service]
 Type=simple
 Restart=always
-WorkingDirectory=/opt/pYSFBMGateway
-ExecStart=/usr/bin/python3 pYSFBMGateway.py
+WorkingDirectory=/opt/BMYSFDirect
+ExecStart=/usr/bin/python3 BMYSFDirect.py
 
 [Install]
 WantedBy=multi-user.target
