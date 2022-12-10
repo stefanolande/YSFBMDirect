@@ -19,4 +19,4 @@ default_tg: 2231
 loglevel: INFO
 # stdout or file
 logtype : file
-path: pysfbmgateway.log
+path: pysfbmdirect.log
