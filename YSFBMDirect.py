@@ -7,7 +7,7 @@ import threading
 import time
 import traceback
 
-from utils import now, pad, validate_dg_id_map
+from utils import now, pad, validate_dg_id_map, close_socket
 from ysf import ysffich
 from ysfd_protocol import send_tg_message, login_and_set_tg
 
@@ -42,6 +42,9 @@ def bm_to_ysf():
             data = bm_sock.recv(1024)
             logging.debug("received message from BM: %s" % data)
 
+            if data == b"":
+                continue
+
             if "YSFNAK" in str(data):
                 logging.error("Brandmeister returned an error")
                 logged_in = False
@@ -71,6 +74,9 @@ def ysf_to_bm():
             data, addr = ysf_sock.recvfrom(1024)
             set_client_addr(addr)
             logging.debug("received message from YSFGateway: %s" % data)
+
+            if data == b"":
+                continue
 
             if "YSFP" in str(data) and not logged_in:
                 logging.info(f"Logging in to BM and setting TG {default_tg}")
@@ -108,11 +114,11 @@ def back_to_home(call: str):
 
 
 def terminate() -> None:
+    print("Exiting")
     global keep_running
     keep_running = False
-
-    bm_sock.close()
-    ysf_sock.close()
+    close_socket(bm_sock)
+    close_socket(ysf_sock)
 
 
 if __name__ == '__main__':
@@ -145,11 +151,8 @@ if __name__ == '__main__':
 
     tg_to_dgid = {v: k for k, v in dgid_to_tg.items()}
 
-    if sys.platform == "win32":
-        signal.signal(signal.SIGBREAK, lambda a,b: terminate())
-    else:
-        signal.signal(signal.SIGINT, lambda a,b: terminate())
-        signal.signal(signal.SIGTERM, lambda a,b: terminate())
+    signal.signal(signal.SIGINT, lambda a, b: terminate())
+    signal.signal(signal.SIGTERM, lambda a, b: terminate())
 
     client_addr = ""
     last_client_packet_timestamp = 0
