@@ -10,8 +10,8 @@ from utils import now, pad, validate_dg_id_map
 from ysf import ysffich
 from ysfd_protocol import send_group_message, login_and_set_tg
 
-keep_running: bool = False
-
+keep_running: bool = True
+logged_in: bool = False
 
 def set_last_client_packet_timestamp():
     global last_client_packet_timestamp
@@ -29,41 +29,55 @@ def set_client_addr(addr):
 
 
 def bm_to_ysf():
+    global keep_running
     while keep_running:
-        data = bm_sock.recv(1024)
-        logging.debug("received message from BM: %s" % data)
+        try:
+            data = bm_sock.recv(1024)
+            logging.debug("received message from BM: %s" % data)
 
-        if "YSFNAK" in str(data):
-            logging.error("Brandmeister returned an error")
+            if "YSFNAK" in str(data):
+                logging.error("Brandmeister returned an error")
 
-        if client_addr != "":
-            ysf_sock.sendto(data, client_addr)
+            if client_addr != "":
+                ysf_sock.sendto(data, client_addr)
+        except:
+            keep_running = False
 
 
 def ysf_to_bm():
+    global keep_running
+    global logged_in
     while keep_running:
-        data, addr = ysf_sock.recvfrom(1024)  # buffer size is 1024 bytes
-        set_client_addr(addr)
-        logging.debug("received message from YSFGateway: %s" % data)
+        try:
+            data, addr = ysf_sock.recvfrom(1024)
+            set_client_addr(addr)
+            logging.debug("received message from YSFGateway: %s" % data)
 
-        if "YSFP" in str(data):
-            ysf_sock.sendto("YSFP".encode() + pad("YSFBMG".encode(), 10), client_addr)
-            continue
+            if "YSFP" in str(data) and not logged_in:
+                logging.info(f"Logging in to BM and setting TG {default_tg}")
+                login_and_set_tg(callsign, bm_password, default_tg, bm_sock)
+                logged_in = True
 
-        if "YSFD" in str(data):
-            ysffich.decode(data[40:])
-            dg_id = ysffich.getSQ()
+            if "YSFD" in str(data):
+                ysffich.decode(data[40:])
+                dg_id = ysffich.getSQ()
 
-            if cur_dg_id != dg_id and dg_id in dgid_to_tg:
-                logging.info(f"Changing TG to {dgid_to_tg[dg_id]} mapped from DG-ID {dg_id}")
-                send_group_message(callsign, dgid_to_tg[dg_id], bm_sock)
-                set_dg_id(dg_id)
+                if cur_dg_id != dg_id and dg_id in dgid_to_tg:
+                    logging.info(f"Changing TG to {dgid_to_tg[dg_id]} mapped from DG-ID {dg_id}")
+                    send_group_message(callsign, dgid_to_tg[dg_id], bm_sock)
+                    set_dg_id(dg_id)
 
-        bm_sock.send(data)
-        set_last_client_packet_timestamp()
+            if "YSFU" in str(data):
+                logged_in = False
+
+            bm_sock.send(data)
+            set_last_client_packet_timestamp()
+        except:
+            keep_running = False
 
 
-def send_ping(call: str):
+def back_to_home(call: str):
+    # TODO
     while keep_running:
         curr_ts = now()
         if curr_ts - last_client_packet_timestamp > 10:
@@ -89,7 +103,7 @@ def signal_handler(signum, _) -> None:
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
-    config.read("pYSFBMGateway.conf")
+    config.read("pYSFBMDirect.conf")
 
     loglevel = config["LOG"]["loglevel"]
     if config["LOG"]["logtype"] == "stdout":
@@ -130,12 +144,8 @@ if __name__ == '__main__':
     logging.info("Starting pYSFBMDirect")
     logging.info(f"Default TG {default_tg} mapped to DG-ID {cur_dg_id}")
 
-    login_and_set_tg(callsign, bm_password, default_tg, bm_sock)
-
-    keep_running = True
-
-    ping_thread = threading.Thread(target=send_ping, args=(callsign,))
-    ping_thread.start()
+    # back_to_home_thread = threading.Thread(target=back_to_home, args=(callsign,))
+    # back_to_home_thread.start()
 
     bm2ysf_thread = threading.Thread(target=bm_to_ysf)
     bm2ysf_thread.start()
@@ -143,6 +153,6 @@ if __name__ == '__main__':
     ysf2bm_thread = threading.Thread(target=ysf_to_bm)
     ysf2bm_thread.start()
 
-    ping_thread.join()
+    # back_to_home_thread.join()
     bm2ysf_thread.join()
     ysf2bm_thread.join()
