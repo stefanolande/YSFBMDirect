@@ -7,7 +7,7 @@ import threading
 import time
 import traceback
 
-from utils import now, pad, validate_dg_id_map, close_socket
+from utils import now, validate_dg_id_map, close_socket
 from ysf import ysffich
 from ysfd_protocol import send_tg_message, login_and_set_tg
 
@@ -88,28 +88,29 @@ def ysf_to_bm():
                 dg_id = ysffich.getSQ()
 
                 if cur_dg_id != dg_id and dg_id in dgid_to_tg:
-                    logging.info(f"Changing TG to {dgid_to_tg[dg_id]} mapped from DG-ID {dg_id}")
-                    send_tg_message(callsign, dgid_to_tg[dg_id], bm_sock)
+                    new_tg = dgid_to_tg[dg_id]
+                    logging.info(f"Changing TG to {new_tg} mapped from DG-ID {dg_id}")
+                    send_tg_message(callsign, new_tg, bm_sock)
                     set_dg_id(dg_id)
+
+                set_last_client_packet_timestamp()
 
             if "YSFU" in str(data):
                 logged_in = False
 
             bm_sock.send(data)
-            set_last_client_packet_timestamp()
         except Exception as e:
             logging.error(traceback.format_exc())
             terminate()
 
 
-def back_to_home(call: str):
-    # TODO
+def back_to_home():
     while keep_running:
         curr_ts = now()
-        if curr_ts - last_client_packet_timestamp > 10:
-            message = "YSFP".encode() + pad(call.encode(), 10)
-            logging.debug("sending ping: %s" % message)
-            bm_sock.send(message)
+        if logged_in and curr_ts - last_client_packet_timestamp > back_to_home_seconds and cur_dg_id != default_dgid:
+            logging.info(f"Changing TG to default  {default_tg} after a timeout")
+            send_tg_message(callsign, default_tg, bm_sock)
+            set_dg_id(default_dgid)
         time.sleep(10)
 
 
@@ -126,11 +127,7 @@ if __name__ == '__main__':
     config.read("YSFBMDirect.conf")
 
     loglevel = config["LOG"]["loglevel"]
-    if config["LOG"]["logtype"] == "stdout":
-        logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=loglevel)
-    else:
-        file = config["LOG"]["path"]
-        logging.basicConfig(filename=file, format='%(asctime)s - %(levelname)s - %(message)s', level=loglevel)
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=loglevel)
 
     callsign = config["CONNECTION"]["callsign"]
     server_ip = config["CONNECTION"]["server_ip"]
@@ -140,6 +137,8 @@ if __name__ == '__main__':
     ysf_port = int(config["CONNECTION"]["ysf_port"])
 
     default_tg = int(config["TG"]["default_tg"])
+    back_to_home_time = int(config["TG"]["back_to_default_time"])
+    back_to_home_seconds = back_to_home_time * 60
 
     dgid_to_tg = {int(k): int(v) for k, v in config["DGID-TO-TG"].items()}
 
@@ -150,6 +149,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     tg_to_dgid = {v: k for k, v in dgid_to_tg.items()}
+
+    default_dgid = tg_to_dgid[default_tg]
 
     signal.signal(signal.SIGINT, lambda a, b: terminate())
     signal.signal(signal.SIGTERM, lambda a, b: terminate())
@@ -167,15 +168,15 @@ if __name__ == '__main__':
     logging.info("Starting YSFBMDirect")
     logging.info(f"Default TG {default_tg} mapped to DG-ID {cur_dg_id}")
 
-    # back_to_home_thread = threading.Thread(target=back_to_home, args=(callsign,))
-    # back_to_home_thread.start()
-
     bm2ysf_thread = threading.Thread(target=bm_to_ysf)
     bm2ysf_thread.start()
 
     ysf2bm_thread = threading.Thread(target=ysf_to_bm)
     ysf2bm_thread.start()
 
-    # back_to_home_thread.join()
+    if back_to_home_time != 0:
+        back_to_home_thread = threading.Thread(target=back_to_home)
+        back_to_home_thread.start()
+
     bm2ysf_thread.join()
     ysf2bm_thread.join()

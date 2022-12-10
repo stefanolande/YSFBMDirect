@@ -1,9 +1,7 @@
 import logging
-import sys
-import time
 from hashlib import sha256
 
-from utils import pad, now
+from utils import pad
 
 
 def send_login_message(call: str, bm_sock):

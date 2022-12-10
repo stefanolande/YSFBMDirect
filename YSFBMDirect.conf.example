@@ -8,6 +8,8 @@ ysf_port: 42002
 
 [TG]
 default_tg: 2231
+# number of minutes of silence to return to the default TG - set 0 for disabling it
+back_to_default_time: 10
 
 [DGID-TO-TG]
 31: 2231
@@ -17,6 +19,3 @@ default_tg: 2231
 
 [LOG]
 loglevel: INFO
-# stdout or file
-logtype : file
-path: ysfbmdirect.log
