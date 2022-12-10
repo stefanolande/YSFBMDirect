@@ -1,6 +1,6 @@
 [CONNECTION]
-callsign: <CALLSIGN>
-bm_password: <PASSWORD>
+callsign: CALLSIGN
+bm_password: PASSWORD
 server_ip: 80.211.95.98
 server_name: BM_2222
 bm_port: 42001
@@ -19,4 +19,4 @@ default_tg: 2231
 loglevel: INFO
 # stdout or file
 logtype : file
-path: pysfbmdirect.log
+path: ysfbmdirect.log
