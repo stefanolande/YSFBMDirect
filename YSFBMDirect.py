@@ -116,7 +116,7 @@ def back_to_home():
 
 
 def terminate() -> None:
-    print("Exiting")
+    logging.info("Exiting")
     global keep_running
     keep_running = False
     close_socket(bm_sock)
