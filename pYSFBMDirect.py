@@ -41,7 +41,7 @@ def bm_to_ysf():
             if client_addr != "":
                 ysf_sock.sendto(data, client_addr)
         except:
-            keep_running = False
+            terminate()
 
 
 def ysf_to_bm():
@@ -73,7 +73,7 @@ def ysf_to_bm():
             bm_sock.send(data)
             set_last_client_packet_timestamp()
         except:
-            keep_running = False
+            terminate()
 
 
 def back_to_home(call: str):
@@ -87,18 +87,12 @@ def back_to_home(call: str):
         time.sleep(10)
 
 
-def signal_handler(signum, _) -> None:
+def terminate() -> None:
     global keep_running
     keep_running = False
 
     bm_sock.close()
     ysf_sock.close()
-
-    if sys.platform == "win32":
-        signal.signal(signal.SIGBREAK, signal_handler)
-    else:
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
 
 
 if __name__ == '__main__':
@@ -130,6 +124,12 @@ if __name__ == '__main__':
         sys.exit(1)
 
     tg_to_dgid = {v: k for k, v in dgid_to_tg.items()}
+
+    if sys.platform == "win32":
+        signal.signal(signal.SIGBREAK, lambda a,b: terminate())
+    else:
+        signal.signal(signal.SIGINT, lambda a,b: terminate())
+        signal.signal(signal.SIGTERM, lambda a,b: terminate())
 
     client_addr = ""
     last_client_packet_timestamp = 0
