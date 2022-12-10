@@ -99,6 +99,9 @@ def ysf_to_bm():
             if "YSFU" in str(data):
                 logged_in = False
 
+            if "YSFO" in str(data):
+                continue
+
             bm_sock.send(data)
         except Exception as e:
             logging.error(traceback.format_exc())
