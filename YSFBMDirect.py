@@ -48,9 +48,9 @@ def bm_to_ysf():
 
             if "YSFACK" in str(data) and len(data) == 20:
                 salt = data[16:]
+                maybe_salt.append(salt)
                 is_salt_received.set()
                 logging.debug("salt: %s" % salt)
-                maybe_salt.append(salt)
                 continue
 
             if "YSFACK" in str(data):
