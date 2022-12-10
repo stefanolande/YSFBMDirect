@@ -87,13 +87,14 @@ def ysf_to_bm():
                 ysffich.decode(data[40:])
                 dg_id = ysffich.getSQ()
 
+                set_last_client_packet_timestamp()
+
                 if cur_dg_id != dg_id and dg_id in dgid_to_tg:
                     new_tg = dgid_to_tg[dg_id]
                     logging.info(f"Changing TG to {new_tg} mapped from DG-ID {dg_id}")
                     send_tg_message(callsign, new_tg, bm_sock)
                     set_dg_id(dg_id)
-
-                set_last_client_packet_timestamp()
+                    continue
 
             if "YSFU" in str(data):
                 logged_in = False
