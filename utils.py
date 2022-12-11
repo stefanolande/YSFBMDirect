@@ -32,4 +32,6 @@ def consume_tail(sock):
             sock.recvfrom(1024)
         except TimeoutError:
             pass
+        except socket.timeout:
+            pass
     sock.setblocking(True)
