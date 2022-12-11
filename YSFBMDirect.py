@@ -7,7 +7,7 @@ import threading
 import time
 import traceback
 
-from utils import now, validate_dg_id_map, close_socket
+from utils import now, validate_dg_id_map, close_socket, consume_tail
 from ysf import ysffich
 from ysfd_protocol import send_tg_message, login_and_set_tg
 
@@ -94,6 +94,7 @@ def ysf_to_bm():
                     logging.info(f"Changing TG to {new_tg} mapped from DG-ID {dg_id}")
                     send_tg_message(callsign, new_tg, bm_sock)
                     set_dg_id(dg_id)
+                    consume_tail(ysf_sock)
                     continue
 
             if "YSFU" in str(data):

@@ -21,9 +21,15 @@ def close_socket(sock):
     try:
         sock.shutdown(socket.SHUT_RD)
     except OSError as e:
-        if e.errno == 107:
-            pass
-        else:
-            raise e
-
+        pass
     sock.close()
+
+
+def consume_tail(sock):
+    sock.settimeout(0.11)
+    for i in range(5):
+        try:
+            sock.recvfrom(1024)
+        except TimeoutError:
+            pass
+    sock.setblocking(True)
