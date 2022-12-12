@@ -32,3 +32,4 @@ def login_and_set_tg(callsign, bm_password, tg, bm_sock, is_salt_received, maybe
     maybe_salt.clear()
     send_challenge_message(callsign, salt, bm_password, bm_sock)
     send_tg_message(callsign, tg, bm_sock)
+

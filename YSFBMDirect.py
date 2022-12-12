@@ -100,7 +100,7 @@ def ysf_to_bm():
                 dg_id = ysffich.getSQ()
 
                 # avoid sending wires-x commands to BM
-                if ysffich.getDT() == DT.DATA:
+                if ysffich.getDT() == DT.DATA and (dg_id == 127 or dg_id == 0):
                     continue
 
                 set_last_client_packet_timestamp()
