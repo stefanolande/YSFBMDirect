@@ -61,7 +61,7 @@ Use `back_to_default_time: 0` if you want to disable this feature, and the Talk 
 
 ### Show the currenct DG-ID with the callsign
 If you set `show_dgid_callsign: true`, the callsign of an incoming transmission will include the current DG-ID, for example `91/N1ABC`. 
-It is useful to remember the Talk Group, you are currently on.
+It is useful to remember the Talk Group you are currently on.
 
 ## Acknowledgements
 
