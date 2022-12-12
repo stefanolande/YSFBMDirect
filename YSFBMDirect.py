@@ -59,7 +59,7 @@ def bm_to_ysf():
             if "YSFACK" in str(data):
                 continue
 
-            if "YSFD" in str(data):
+            if "YSFD" in str(data) and show_dgid_callsing:
                 ysffich.decode(data[40:])
                 fn = ysffich.getFN()
                 dt = ysffich.getDT()
@@ -156,6 +156,7 @@ if __name__ == '__main__':
     default_tg = int(config["TG"]["default_tg"])
     back_to_home_time = int(config["TG"]["back_to_default_time"])
     back_to_home_seconds = back_to_home_time * 60
+    show_dgid_callsing = bool(config["TG"].get("show_dgid_callsign", False))
 
     dgid_to_tg = {int(k): int(v) for k, v in config["DGID-TO-TG"].items()}
 
