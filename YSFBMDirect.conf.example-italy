@@ -1,0 +1,127 @@
+[CONNECTION]
+callsign: CALLSIGN
+bm_password: PASSWORD
+server_ip: 80.211.95.98
+server_name: BM_2222
+bm_port: 42001
+ysf_port: 42002
+
+[TG]
+default_tg: 2231
+# number of minutes of silence to return to the default TG - set 0 for disabling it
+back_to_default_time: 10
+show_dgid_callsign: true
+
+[DGID-TO-TG]
+# TG Regionali
+# Lazio
+01: 22201
+# Sardegna
+02: 22202
+# Umbria
+03: 22203
+# Liguria
+04: 22211
+# Piemonte
+05: 22212
+# Valle d'Aosta
+06: 22213
+# Lombardia
+07: 22221
+# Friuli Venezia Giulia
+08: 22231
+# Trentino Alto Adige
+09: 22232
+# Veneto
+10: 22233
+# Emilia Romagna
+11: 22241
+# Toscana
+12: 22251
+# Abruzzo
+13: 22261
+# Marche
+14: 22262
+# Puglia
+15: 22271
+# Basilicata
+16: 22281
+# Calabria
+17: 22282
+# Campania
+18: 22283
+# Molise
+19: 22284
+# Sicilia
+20: 22291
+# Italia
+21: 222
+# Multiprotocollo
+# Italia
+22: 22292
+# MP Lazio
+30: 2230
+# MP Sardegna
+31: 2231
+# MP Umbria
+32: 2232
+# MP Liguria
+33: 2233
+# MP Piemonte
+34: 2234
+# MP Valle d'Aosta
+35: 2235
+# MP Lombardia
+36: 2236
+# MP Friuli Venezia Giulia
+37: 2237
+# MP Trentino Alto Adige
+38: 2238
+# MP Veneto
+39: 2239
+# MP Emilia Romagna
+40: 2240
+# MP Toscana
+41: 2241
+# MP Abruzzo
+42: 2242
+# MP Marche
+43: 2243
+# MP Puglia
+44: 2244
+# MP Basilicata
+45: 2245
+# MP Calabria
+46: 2246
+# MP Campania
+47: 2247
+# MP Molise
+48: 2248
+# MP Sicilia
+49: 2249
+# Cluster GRF
+55: 222555
+# TAC 01/10 ITA
+61: 222001
+62: 222002
+63: 222003
+64: 222004
+65: 222005
+66: 222006
+67: 222007
+68: 222008
+69: 222009
+70: 222010
+# Digiland Italy Group multiprotocol Link
+80: 22480
+# Gruppo AMRS - Ass. Marconi Radioamatori Sperimentatori
+81: 22481
+# Italy Centro Multiprotocollo
+87: 22487
+# Italian JOTA (Radio Scout)
+97: 222907
+# PIRS Sicilia
+98: 22498
+
+[LOG]
+loglevel: INFO

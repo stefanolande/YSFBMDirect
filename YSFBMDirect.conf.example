@@ -13,8 +13,6 @@ back_to_default_time: 10
 show_dgid_callsign: true
 
 [DGID-TO-TG]
-31: 2231
-22: 222
 91: 91
 92: 92
 
