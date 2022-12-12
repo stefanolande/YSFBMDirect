@@ -9,6 +9,7 @@ import traceback
 
 from utils import now, validate_dg_id_map, close_socket, consume_tail
 from ysf import ysffich, ysfpayload
+from ysf.ysffich import DT
 from ysfd_protocol import send_tg_message, login_and_set_tg
 
 keep_running: bool = True
@@ -36,7 +37,6 @@ def set_client_addr(addr):
 def bm_to_ysf():
     global keep_running
     global logged_in
-    global salt
     while keep_running:
         try:
             data = bm_sock.recv(1024)
@@ -64,7 +64,7 @@ def bm_to_ysf():
                 fn = ysffich.getFN()
                 dt = ysffich.getDT()
 
-                if fn == 1 and dt == 2:
+                if fn == 1 and dt == DT.VD2:
                     payload = bytearray(data[35:])
                     orig = str(data[14:24], 'utf-8').strip()
                     src = (str(cur_dg_id) + '/' + orig).ljust(10).encode()
@@ -98,6 +98,10 @@ def ysf_to_bm():
             if "YSFD" in str(data):
                 ysffich.decode(data[40:])
                 dg_id = ysffich.getSQ()
+
+                # avoid sending wires-x commands to BM
+                if ysffich.getDT() == DT.DATA:
+                    continue
 
                 set_last_client_packet_timestamp()
 

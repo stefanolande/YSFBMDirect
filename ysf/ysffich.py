@@ -9,7 +9,6 @@
 
 from ysf import crc, golay24128, ysfconvolution
 
-
 BIT_MASK_TABLE = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]
 
 m_fich = []
@@ -275,6 +274,13 @@ def setBN(bn):
 def setBT(bt):
     m_fich[1] &= 0x3F
     m_fich[1] |= (bt << 6) & 0xC0
+
+
+class DT:
+    VD1 = 0
+    DATA = 1
+    VD2 = 2
+    VOICEFR = 3
 
 
 if __name__ == '__main__':
