@@ -156,7 +156,7 @@ if __name__ == '__main__':
     default_tg = int(config["TG"]["default_tg"])
     back_to_home_time = int(config["TG"]["back_to_default_time"])
     back_to_home_seconds = back_to_home_time * 60
-    show_dgid_callsing = bool(config["TG"].get("show_dgid_callsign", "false"))
+    show_dgid_callsing = config["TG"].get("show_dgid_callsign", "false").lower() == "true"
 
     dgid_to_tg = {int(k): int(v) for k, v in config["DGID-TO-TG"].items()}
 
