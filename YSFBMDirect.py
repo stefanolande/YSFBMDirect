@@ -8,7 +8,7 @@ import time
 import traceback
 
 from utils import now, validate_dg_id_map, close_socket, consume_tail
-from ysf import ysffich
+from ysf import ysffich, ysfpayload
 from ysfd_protocol import send_tg_message, login_and_set_tg
 
 keep_running: bool = True
@@ -59,6 +59,18 @@ def bm_to_ysf():
             if "YSFACK" in str(data):
                 continue
 
+            if "YSFD" in str(data):
+                ysffich.decode(data[40:])
+                fn = ysffich.getFN()
+                dt = ysffich.getDT()
+
+                if fn == 1 and dt == 2:
+                    payload = bytearray(data[35:])
+                    orig = str(data[14:24], 'utf-8').strip()
+                    src = (str(cur_dg_id) + '/' + orig).ljust(10).encode()
+                    ysfpayload.writeVDMmode2Data(payload, src)
+                    data = data[:35] + payload
+
             if client_addr != "":
                 ysf_sock.sendto(data, client_addr)
         except Exception as e:
@@ -89,7 +101,7 @@ def ysf_to_bm():
 
                 set_last_client_packet_timestamp()
 
-                if cur_dg_id != dg_id and dg_id in dgid_to_tg:
+                if cur_dg_id != dg_id and dg_id in dgid_to_tg and logged_in:
                     new_tg = dgid_to_tg[dg_id]
                     logging.info(f"Changing TG to {new_tg} mapped from DG-ID {dg_id}")
                     send_tg_message(callsign, new_tg, bm_sock)
