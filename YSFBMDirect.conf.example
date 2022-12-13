@@ -7,7 +7,7 @@ bm_port: 42001
 ysf_port: 42002
 
 [TG]
-default_tg: 2231
+default_tg: 91
 # number of minutes of silence to return to the default TG - set 0 for disabling it
 back_to_default_time: 10
 show_dgid_callsign: true
