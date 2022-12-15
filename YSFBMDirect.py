@@ -18,6 +18,8 @@ logged_in: bool = False
 maybe_salt = []
 is_salt_received = threading.Event()
 
+ping_awaiting_response = 0
+
 
 def set_last_client_packet_timestamp():
     global last_client_packet_timestamp
@@ -37,6 +39,7 @@ def set_client_addr(addr):
 def bm_to_ysf():
     global keep_running
     global logged_in
+    global ping_awaiting_response
     while keep_running:
         try:
             data = bm_sock.recv(1024)
@@ -44,6 +47,9 @@ def bm_to_ysf():
 
             if data == b"":
                 continue
+
+            if "YSFP" in str(data) and logged_in and ping_awaiting_response > 0:
+                ping_awaiting_response -= 1
 
             if "YSFNAK" in str(data):
                 logging.error("Brandmeister returned an error")
@@ -81,6 +87,7 @@ def bm_to_ysf():
 def ysf_to_bm():
     global keep_running
     global logged_in
+    global ping_awaiting_response
     while keep_running:
         try:
             data, addr = ysf_sock.recvfrom(1024)
@@ -90,10 +97,16 @@ def ysf_to_bm():
             if data == b"":
                 continue
 
+            if "YSFP" in str(data) and logged_in:
+                ping_awaiting_response += 1
+                if ping_awaiting_response > 10:
+                    logged_in = False
+
             if "YSFP" in str(data) and not logged_in:
                 logging.info(f"Logging in to BM and setting TG {default_tg}")
                 login_and_set_tg(callsign, bm_password, default_tg, bm_sock, is_salt_received, maybe_salt)
                 logged_in = True
+                ping_awaiting_response = 0
 
             if "YSFD" in str(data):
                 ysffich.decode(data[40:])
@@ -152,7 +165,6 @@ if __name__ == '__main__':
 
     callsign = config["CONNECTION"]["callsign"]
     server_ip = config["CONNECTION"]["server_ip"]
-    server_name = config["CONNECTION"]["server_name"]
     bm_port = int(config["CONNECTION"]["bm_port"])
     bm_password = config["CONNECTION"]["bm_password"]
     ysf_port = int(config["CONNECTION"]["ysf_port"])
