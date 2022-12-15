@@ -2,7 +2,6 @@
 callsign: CALLSIGN
 bm_password: PASSWORD
 server_ip: 80.211.95.98
-server_name: BM_2222
 bm_port: 42001
 ysf_port: 42002
 
