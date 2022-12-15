@@ -101,6 +101,7 @@ def ysf_to_bm():
                 ping_awaiting_response += 1
                 if ping_awaiting_response > 10:
                     logged_in = False
+                    continue
 
             if "YSFP" in str(data) and not logged_in:
                 logging.info(f"Logging in to BM and setting TG {default_tg}")
@@ -179,7 +180,6 @@ if __name__ == '__main__':
     if not validate_dg_id_map(dgid_to_tg):
         message = "DGID-TO-TG configuration is invalid - check for duplicated TGs"
         logging.error(message)
-        print(message)
         sys.exit(1)
 
     tg_to_dgid = {v: k for k, v in dgid_to_tg.items()}
