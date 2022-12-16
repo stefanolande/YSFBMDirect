@@ -34,7 +34,7 @@ def login_and_set_tg(callsign, bm_password, tg, bm_sock, is_salt_received, maybe
     send_tg_message(callsign, tg, bm_sock)
 
 def send_logout_message(call: str, bm_sock):
-    message = "YSFLU".encode() + pad(call.encode(), 10)
+    message = "YSFU".encode() + pad(call.encode(), 10)
 
     for i in range(1,3):
         logging.debug("sending: %s" % message)
