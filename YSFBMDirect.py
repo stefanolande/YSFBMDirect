@@ -10,7 +10,7 @@ import traceback
 from utils import now, validate_dg_id_map, close_socket, consume_tail
 from ysf import ysffich, ysfpayload
 from ysf.ysffich import DT
-from ysfd_protocol import send_tg_message, login_and_set_tg
+from ysfd_protocol import send_tg_message, login_and_set_tg, send_logout_message
 
 keep_running: bool = True
 logged_in: bool = False
@@ -19,7 +19,10 @@ maybe_salt = []
 is_salt_received = threading.Event()
 
 ping_awaiting_response = 0
+last_ping_time = 0
 
+max_failed_pings = 10
+ping_ttl = 30  # seconds
 
 def set_last_client_packet_timestamp():
     global last_client_packet_timestamp
@@ -88,6 +91,8 @@ def ysf_to_bm():
     global keep_running
     global logged_in
     global ping_awaiting_response
+    global last_ping_time
+
     while keep_running:
         try:
             data, addr = ysf_sock.recvfrom(1024)
@@ -99,7 +104,8 @@ def ysf_to_bm():
 
             if "YSFP" in str(data) and logged_in:
                 ping_awaiting_response += 1
-                if ping_awaiting_response > 10:
+                last_ping_time = now()
+                if ping_awaiting_response > max_failed_pings:
                     logged_in = False
                     continue
 
@@ -139,13 +145,22 @@ def ysf_to_bm():
             terminate()
 
 
-def back_to_home():
+def timed_checks():
+    global logged_in
+
     while keep_running:
         curr_ts = now()
-        if logged_in and curr_ts - last_client_packet_timestamp > back_to_home_seconds and cur_dg_id != default_dgid:
+
+        if logged_in and cur_dg_id != default_dgid and 0 < back_to_home_seconds < curr_ts - last_client_packet_timestamp:
             logging.info(f"Changing TG to default  {default_tg} after a timeout")
             send_tg_message(callsign, default_tg, bm_sock)
             set_dg_id(default_dgid)
+
+        if logged_in and curr_ts - last_ping_time > ping_ttl:
+            logging.info(f"logging out due to ping timeout")
+            send_logout_message(callsign, bm_sock)
+            logged_in = False
+
         time.sleep(10)
 
 
@@ -208,9 +223,9 @@ if __name__ == '__main__':
     ysf2bm_thread = threading.Thread(target=ysf_to_bm)
     ysf2bm_thread.start()
 
-    if back_to_home_time != 0:
-        back_to_home_thread = threading.Thread(target=back_to_home)
-        back_to_home_thread.start()
+    timed_tasks_thread = threading.Thread(target=timed_checks)
+    timed_tasks_thread.start()
 
     bm2ysf_thread.join()
     ysf2bm_thread.join()
+    timed_tasks_thread.join()
