@@ -7,7 +7,7 @@ import threading
 import time
 import traceback
 
-from utils import now, validate_dg_id_map, close_socket, consume_tail
+from utils import now, validate_dg_id_map, close_socket, consume_tail, send_tg_change_tx
 from ysf import ysffich, ysfpayload
 from ysf.ysffich import DT
 from ysfd_protocol import send_tg_message, login_and_set_tg, send_logout_message
@@ -131,6 +131,9 @@ def ysf_to_bm():
                     send_tg_message(callsign, new_tg, bm_sock)
                     set_dg_id(dg_id)
                     consume_tail(ysf_sock)
+
+                    send_tg_change_tx(callsign, new_tg, ysf_sock, client_addr)
+
                     continue
 
             if "YSFU" in str(data):
@@ -155,6 +158,7 @@ def timed_checks():
             logging.info(f"Changing TG to default  {default_tg} after a timeout")
             send_tg_message(callsign, default_tg, bm_sock)
             set_dg_id(default_dgid)
+            send_tg_change_tx(callsign, default_dgid, ysf_sock, client_addr)
 
         if logged_in and curr_ts - last_ping_time > ping_ttl:
             logging.info(f"logging out due to ping timeout")
