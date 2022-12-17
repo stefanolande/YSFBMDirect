@@ -62,8 +62,8 @@ def send_tg_change_tx(callsign, tg: int, sock, client_addr):
     ]
 
     encoded_call = pad(callsign.encode(), 10)
-
     messages = ["YSFD".encode() + encoded_call + encoded_call + pad("ALL".encode(), 10) + d for d in payloads]
+    src = f"TG{tg}".ljust(10).encode()
 
     for i in range(0, len(messages)):
         data = messages[i]
@@ -73,9 +73,7 @@ def send_tg_change_tx(callsign, tg: int, sock, client_addr):
 
         if fn == 1 and dt == DT.VD2:
             payload = bytearray(data[35:])
-            src = f"TG{tg}".ljust(10).encode()
             ysfpayload.writeVDMmode2Data(payload, src)
-            data = data[:35] + payload
-            messages[i] = data
+            messages[i] = data[:35] + payload
 
         sock.sendto(messages[i], client_addr)
