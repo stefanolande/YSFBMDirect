@@ -7,7 +7,7 @@ The goal of this software is to build a YSF repeater that can connect to Brandme
 without losing the possibility to connect to other YSF rooms.
 
 By adding YSFBMDirect to your `YSFHosts.txt` file, you can connect to it through WIRES-X.
-Then, simply change the TX DG-ID of your radio to change the DMR Talk Group.
+Then, exit from the WIRES-X mode and simply change the TX DG-ID of your radio to change the DMR Talk Group.
 
 When you make a short transmission just to change the Talk Group, it won't be sent to Brandmeister. 
 YSFBMDirect will acknowledge change with a short transmission, showing the Talk Group number as the callsign.
