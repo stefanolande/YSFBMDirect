@@ -24,6 +24,7 @@ last_ping_time = 0
 max_failed_pings = 10
 ping_ttl = 30  # seconds
 
+
 def set_last_client_packet_timestamp():
     global last_client_packet_timestamp
     last_client_packet_timestamp = now()
@@ -123,9 +124,8 @@ def ysf_to_bm():
                 if ysffich.getDT() == DT.DATA and (dg_id == 127 or dg_id == 0):
                     continue
 
-                set_last_client_packet_timestamp()
-
-                if cur_dg_id != dg_id and dg_id in dgid_to_tg and logged_in:
+                if cur_dg_id != dg_id and dg_id in dgid_to_tg and logged_in \
+                        and now() - last_client_packet_timestamp > tg_change_silence_period:
                     new_tg = dgid_to_tg[dg_id]
                     logging.info(f"Changing TG to {new_tg} mapped from DG-ID {dg_id}")
                     send_tg_message(callsign, new_tg, bm_sock)
@@ -133,8 +133,11 @@ def ysf_to_bm():
                     consume_tail(ysf_sock)
 
                     send_tg_change_tx(callsign, new_tg, ysf_sock, client_addr)
+                    set_last_client_packet_timestamp()
 
                     continue
+                else:
+                    set_last_client_packet_timestamp()
 
             if "YSFU" in str(data):
                 logged_in = False
@@ -193,6 +196,7 @@ if __name__ == '__main__':
     back_to_home_time = int(config["TG"]["back_to_default_time"])
     back_to_home_seconds = back_to_home_time * 60
     show_dgid_callsing = config["TG"].get("show_dgid_callsign", "false").lower() == "true"
+    tg_change_silence_period = int(config["TG"]["tg_change_silence_period"])
 
     dgid_to_tg = {int(k): int(v) for k, v in config["DGID-TO-TG"].items()}
 
