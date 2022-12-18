@@ -67,7 +67,7 @@ If you set `show_dgid_callsign: true`, the callsign of an incoming transmission 
 It is useful to remember the Talk Group you are currently on.
 
 ### Silence period before Talk Group change
-If you set `tg_change_silence_period: n` with `n` greather than 0, a user can only change the Talk Group after `n` seconds of silence have passed after the last transmission.
+If you set `tg_change_silence_period: n` with `n` greather than 0, a user can only change the Talk Group after `n` seconds of silence have passed since the last transmission.
 In this interval, any transmission will be sent to the current Talk Group, even if the DG-ID is different.
 
 ## Acknowledgements
