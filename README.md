@@ -66,6 +66,10 @@ Use `back_to_default_time: 0` if you want to disable this feature, and the Talk 
 If you set `show_dgid_callsign: true`, the callsign of an incoming transmission will include the current DG-ID, for example `91/N1ABC`. 
 It is useful to remember the Talk Group you are currently on.
 
+### Silence period before Talk Group change
+If you set `tg_change_silence_period: n` with `n` greather than 0, a user can only change the Talk Group after `n` seconds of silence have passed after the last transmission.
+In this interval, any transmission will be sent to the current Talk Group, even if the DG-ID is different.
+
 ## Acknowledgements
 
 * Stefano IS0EIR: Author
