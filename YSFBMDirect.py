@@ -196,7 +196,7 @@ if __name__ == '__main__':
     back_to_home_time = int(config["TG"]["back_to_default_time"])
     back_to_home_seconds = back_to_home_time * 60
     show_dgid_callsing = config["TG"].get("show_dgid_callsign", "false").lower() == "true"
-    tg_change_silence_period = int(config["TG"]["tg_change_silence_period"])
+    tg_change_silence_period = int(config["TG"].get("tg_change_silence_period", "0"))
 
     dgid_to_tg = {int(k): int(v) for k, v in config["DGID-TO-TG"].items()}
 
