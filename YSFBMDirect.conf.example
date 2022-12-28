@@ -14,6 +14,8 @@ show_dgid_callsign: true
 tg_change_silence_period: 30
 
 [DGID-TO-TG]
+# write the Talk Groups you want to be available and the corresponding DG-ID,
+# in the format DGID: TALKGROUP
 91: 91
 92: 92
 
