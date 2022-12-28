@@ -1,40 +1,36 @@
 #!/usr/bin/env bash
 
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+[ "$UID" -eq 0 ] || exec sudo "$0" "$@"
 
 echo "Installing YSFBMDirect"
 
 rm -rf /tmp/YSFBMDirect
 
 cd /tmp/ || exit
-git clone -q https://github.com/stefanolande/YSFBMDirect.git
+git clone https://github.com/stefanolande/YSFBMDirect.git -q
 cp YSFBMDirect/YSFBMDirect.conf.example YSFBMDirect/YSFBMDirect.conf
 
-while [[ $call == '' ]]
-do
-    read -r -p "Enter your callsign: " call
+while [[ $call == '' ]]; do
+  read -rp "Enter your callsign: " call </dev/tty
 done
 
-while [[ $password == '' ]]
-do
-	read -r -p "Enter your Brandmeister password: " password
+while [[ $password == '' ]]; do
+  read -rp "Enter your Brandmeister password: " password </dev/tty
 done
 
 sed -i "s/CALLSIGN/$call/" YSFBMDirect/YSFBMDirect.conf
 sed -i "s/PASSWORD/$password/" YSFBMDirect/YSFBMDirect.conf
 
-read -r -p "Do you want to edit the Talk Group configuration [y/N]?" edit_tg
-
-while [[ $edit_tg != 'y' ]] && [[ $edit_tg != 'Y' ]] && [[ $edit_tg != 'n' ]] && [[ $edit_tg != 'N' ]] && [[ $edit_tg != '' ]]
-do
-	read -r -p "Do you want to edit the Talk Group configuration [y/N]?" edit_tg
+read -rp "Do you want to edit the Talk Group configuration [y/N]?" edit_tg </dev/tty
+while [[ $edit_tg != 'y' ]] && [[ $edit_tg != 'Y' ]] && [[ $edit_tg != 'n' ]] && [[ $edit_tg != 'N' ]] && [[ $edit_tg != '' ]]; do
+  read -rp "Do you want to edit the Talk Group configuration [y/N]?" edit_tg </dev/tty
 done
 
 if [[ $edit_tg == 'y' ]] || [[ $edit_tg == 'Y' ]];
 then
-	editor YSFBMDirect/YSFBMDirect.conf
+  editor YSFBMDirect/YSFBMDirect.conf </dev/tty
 else
-	echo "You can edit it later in /opt/YSFBMDirect/YSFBMDirect.conf"
+  echo "You can edit it later in /opt/YSFBMDirect/YSFBMDirect.conf"
 fi
 
 rm -rf /opt/YSFBMDirect
@@ -47,6 +43,6 @@ sudo systemctl start ysfbmdirect.service
 
 ysf="01234;YSF-BM;YSF-BM;127.0.0.1;42002;001"
 if ! grep -q $ysf /root/YSFHosts.txt; then
-	echo $ysf >> /root/YSFHosts.txt
-	/usr/local/sbin/HostFilesUpdate.sh
+  echo $ysf >> /root/YSFHosts.txt
+  /usr/local/sbin/HostFilesUpdate.sh
 fi
