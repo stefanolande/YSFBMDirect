@@ -36,7 +36,7 @@ else
 	echo "You can edit it later in /opt/YSFBMDirect/YSFBMDirect.conf"
 fi
 
-mv YSFBMDirect /opt/
+mv -f YSFBMDirect /opt/
 cd /opt/YSFBMDirect/
 cp ysfbmdirect.service /etc/systemd/system/
 sudo systemctl daemon-reload
