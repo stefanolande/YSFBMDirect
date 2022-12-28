@@ -2,12 +2,13 @@
 
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
 
+echo "Installing YSFBMDirect"
+
 rm -rf /tmp/YSFBMDirect
 
 cd /tmp/ || exit
-git clone https://github.com/stefanolande/YSFBMDirect.git
+git clone -q https://github.com/stefanolande/YSFBMDirect.git
 cp YSFBMDirect/YSFBMDirect.conf.example YSFBMDirect/YSFBMDirect.conf
-
 
 while [[ $call == '' ]]
 do
