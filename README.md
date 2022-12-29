@@ -14,8 +14,27 @@ YSFBMDirect will acknowledge change with a short transmission, showing the Talk 
 
 ![Network diagram](./images/diagram.svg)
 
+# Installation
 
-## Installation
+### Automatic installation on pi-star
+
+Go to your pi-star dashboard, Configuration > Expert > SSH Access, then login with your credentials 
+(user `pi-star` and password `raspberry` by default).
+
+Paste the following command
+
+```commandline
+rpi-rw && curl https://raw.githubusercontent.com/stefanolande/YSFBMDirect/master/install.sh | bash -
+```
+
+You can edit your configuration file during the installation wizard, or later with
+
+```commandline
+rpi-rw && sudo nano /opt/YSFBMDirect/YSFBMDirect.conf
+```
+
+
+### Manual Installation (expert)
 
 Clone the repository and create your configuration file. Set your callsign and password in the file.
 

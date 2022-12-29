@@ -15,7 +15,7 @@ while [[ $call == '' ]]; do
 done
 
 while [[ $password == '' ]]; do
-  read -rp "Enter your Brandmeister password: " password </dev/tty
+  read -rsp "Enter your Brandmeister password: " password </dev/tty
 done
 
 sed -i "s/CALLSIGN/$call/" YSFBMDirect/YSFBMDirect.conf
@@ -46,3 +46,5 @@ if ! grep -q $ysf /root/YSFHosts.txt; then
   echo $ysf >> /root/YSFHosts.txt
   /usr/local/sbin/HostFilesUpdate.sh
 fi
+
+echo "YSFBMDirect installed successfully"
