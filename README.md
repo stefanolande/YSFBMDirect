@@ -33,6 +33,8 @@ You can edit your configuration file during the installation wizard, or later wi
 rpi-rw && sudo nano /opt/YSFBMDirect/YSFBMDirect.conf
 ```
 
+Here's a [video](https://www.youtube.com/watch?v=_kqUQTMxKBU) showing the process.
+
 
 ### Manual Installation (expert)
 
