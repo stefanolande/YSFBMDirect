@@ -21,6 +21,7 @@ done
 sed -i "s/CALLSIGN/$call/" YSFBMDirect/YSFBMDirect.conf
 sed -i "s/PASSWORD/$password/" YSFBMDirect/YSFBMDirect.conf
 
+echo ""
 read -rp "Do you want to edit the Talk Group configuration [y/N]?" edit_tg </dev/tty
 while [[ $edit_tg != 'y' ]] && [[ $edit_tg != 'Y' ]] && [[ $edit_tg != 'n' ]] && [[ $edit_tg != 'N' ]] && [[ $edit_tg != '' ]]; do
   read -rp "Do you want to edit the Talk Group configuration [y/N]?" edit_tg </dev/tty
