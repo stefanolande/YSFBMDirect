@@ -107,6 +107,7 @@ def ysf_to_bm():
                 ping_awaiting_response += 1
                 last_ping_time = now()
                 if ping_awaiting_response > max_failed_pings:
+                    logging.info("Logging-in again due to a ping timeout")
                     logged_in = False
                     continue
 
@@ -147,6 +148,7 @@ def ysf_to_bm():
 
             bm_sock.send(data)
         except Exception as e:
+            logging.error("Exiting due to an error")
             logging.error(traceback.format_exc())
             terminate()
 

@@ -26,7 +26,7 @@ def send_tg_message(call: str, tg: int, bm_sock):
 
 def login_and_set_tg(callsign, bm_password, tg, bm_sock, is_salt_received, maybe_salt: list):
     send_login_message(callsign, bm_sock)
-    is_salt_received.wait()
+    is_salt_received.wait(10.0)
     is_salt_received.clear()
     salt = maybe_salt[0]
     maybe_salt.clear()
