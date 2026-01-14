@@ -96,5 +96,6 @@ In this interval, any transmission will be sent to the current Talk Group, even 
 * Stefano IS0EIR: Author
 * Bruno IS0GQX: Feature advisor and tester
 * Luca IS0GVH: Code reviews
+* Martino Mori IU4QTF: Fix for the transmission to indicate the Talk Group change
 
 We also thank [Antonio IU5JAE](https://github.com/iu5jae/), whose open-source code was extermely useful for this project. 

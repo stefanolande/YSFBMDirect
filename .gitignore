@@ -286,3 +286,4 @@ poetry.toml
 
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python
+.DS_Store
