@@ -1,5 +1,5 @@
 [Unit]
-Description=YSFBMDirect
+Description=YSFBMDirect - YSF to Brandmeister Bridge
 After=multi-user.target
 
 [Service]
@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=10
 WorkingDirectory=/opt/YSFBMDirect
-ExecStart=/usr/bin/python3 YSFBMDirect.py
+ExecStart=/opt/YSFBMDirect/.venv/bin/ysfbmdirect config.yaml
 StandardOutput=append:/var/log/pi-star/YSFBMDirect.log
 StandardError=append:/var/log/pi-star/YSFBMDirect.log
 

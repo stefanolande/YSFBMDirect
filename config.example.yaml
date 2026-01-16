@@ -1,0 +1,49 @@
+# YSFBMDirect v2.0 Configuration
+# YAML format - modern and easy to edit
+
+connection:
+  # Your amateur radio callsign
+  callsign: YOUR_CALLSIGN
+
+  # Brandmeister server settings
+  bm_host: 44.131.4.1  # BM server IP
+  bm_port: 42000
+  bm_password: YOUR_PASSWORD
+
+  # Local YSF client port
+  ysf_port: 42002
+
+talkgroups:
+  # Default talk group to use on startup
+  default_tg: 2225
+  default_dgid: 10
+
+  # Seconds of inactivity before returning to default TG (0 = disabled)
+  back_to_default_seconds: 300  # 5 minutes
+
+  # Show DG-ID in callsign display (e.g., "10/N0CALL")
+  show_dgid_callsign: false
+
+  # Seconds to wait after last packet before allowing TG change (0 = immediate)
+  tg_change_silence_period: 5.0
+
+  # DG-ID to Talk Group mapping
+  # Map DG-IDs from your YSF radio to Brandmeister talk groups
+  dgid_to_tg:
+    10: 2225   # DG-ID 10 -> TG 2225 (Italy)
+    20: 222    # DG-ID 20 -> TG 222 (Local)
+    30: 91     # DG-ID 30 -> TG 91 (Worldwide)
+    31: 3100   # DG-ID 31 -> TG 3100
+    # Add more mappings as needed
+
+# Web UI for monitoring and configuration
+webui:
+  enabled: true           # Enable/disable web interface
+  host: 0.0.0.0          # Listen on all interfaces (use 127.0.0.1 for localhost only)
+  port: 8080             # Web UI port
+
+  # Optional authentication (coming soon)
+  # auth:
+  #   enabled: true
+  #   username: admin
+  #   password: changeme

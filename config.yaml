@@ -1,0 +1,21 @@
+connection:
+  callsign: IS0EIR-HS
+  bm_host: 44.131.4.1
+  bm_port: 42000
+  bm_password: decitacan
+  ysf_port: 42002
+talkgroups:
+  default_tg: 2225
+  default_dgid: 10
+  back_to_default_seconds: 300
+  show_dgid_callsign: false
+  tg_change_silence_period: 5
+  dgid_to_tg:
+    '10': 2225
+    '20': 222
+    '30': 91
+    '31': 3100
+webui:
+  enabled: true
+  host: 0.0.0.0
+  port: 8080
